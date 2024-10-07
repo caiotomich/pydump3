@@ -15,7 +15,7 @@ if __name__ == "__main__":
     date = datetime.now().strftime('%Y%m%d')
     database = os.getenv("BACKUP_DATABASE")
     path = os.getenv("BACKUP_PATH")
-    split_size = os.getenv("SPLIT_SIZE_MB")
+    split_rows = int(os.getenv("SPLIT_ROWS"))
 
     db_handler = DatabaseHandler()
 
@@ -24,9 +24,12 @@ if __name__ == "__main__":
         table_name = table['name']
 
         print('Table {}'.format(table_name))
-        if int(table['size']) > int(split_size):
-            size = round(table['size'] / int(split_size))
-            rows = round(table['rows'] / size) + 100
+        result = db_handler.execute_raw_sql("SELECT COUNT(*) AS 'rows' FROM {}.{}".format(database, table_name))
+        table_rows = int(result[0]['rows'])
+
+        if table_rows > split_rows:
+            size = round(table_rows / split_rows) + 1
+
             for i in range(size):
                 backup_path = '{}/{}_{}_{}.sql'.format(path, table_name, i, date)
 
@@ -34,14 +37,15 @@ if __name__ == "__main__":
                     print('Backup {} already exists'.format(backup_path))
                     continue
 
-                print('Backup {} from {} to {}'.format(backup_path, rows * i, rows * (i + 1)))
-                db_handler.execute_backup(database, table_name, backup_path, rows * i, rows * (i + 1))
+                print('Backup {} from {} to {}'.format(backup_path, split_rows * i, split_rows * (i + 1)))
+                db_handler.execute_backup(database, table_name, backup_path, split_rows * i, split_rows * (i + 1))
         else:
             backup_path = '{}/{}_{}.sql'.format(path, table_name, date)
 
             if os.path.exists(backup_path):
                 print('Backup {} already exists'.format(backup_path))
                 continue
-            db_handler.execute_backup(database, table_name, backup_path, 0, table['rows'])
+
+            db_handler.execute_backup(database, table_name, backup_path, 0, table_rows)
 
         print('Table {} backup done!\n'.format(table_name))

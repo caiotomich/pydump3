@@ -7,26 +7,39 @@ class DatabaseHandler:
         self.user = os.getenv("MYSQL_USER")
         self.password = os.getenv("MYSQL_PASSWORD")
 
-        self.stmt = pymysql.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor
-        )
+        self.stmt = self.connect()
+
+    def connect(self):
+        try:
+            return pymysql.connect(
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                charset='utf8mb4',
+                cursorclass=pymysql.cursors.DictCursor
+            )
+        except pymysql.MySQLError as e:
+            print(f"Error connecting to database: {e}")
+            return None
 
     def execute_raw_sql(self, query):
-        with self.stmt.cursor() as cursor:
-            cursor.execute(query)
-            databases = cursor.fetchall()
-        self.stmt.close()
+        if self.stmt is None:
+            self.stmt = self.connect()
 
-        return databases
+        try:
+            with self.stmt.cursor() as cursor:
+                self.stmt.ping(reconnect=True)
+                cursor.execute(query)
+                result = cursor.fetchall()
+                return result
+        except pymysql.MySQLError as e:
+            print(f"Error executing query: {e}")
+        finally:
+            self.stmt.close()
 
     def show_tables(self, database):
         return self.execute_raw_sql("SELECT \
                 table_name AS 'name', \
-                table_rows AS 'rows', \
                 ROUND((data_length + index_length) / 1024 / 1024, 2) AS 'size', \
                 ROUND(data_length / 1024 / 1024, 2) AS 'data_size', \
                 ROUND(index_length / 1024 / 1024, 2) AS 'index_size' \
