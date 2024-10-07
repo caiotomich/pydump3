@@ -3,6 +3,7 @@ __pycache__/
 .vscode/
 .idea/
 .DS_Store
+backup/*.sql
 
 *.pyc
 *.pyo

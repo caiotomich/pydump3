@@ -23,11 +23,26 @@ class DatabaseHandler:
 
         return databases
 
-    def show_databases(self):
-        return self.execute_raw_sql("SHOW DATABASES")
+    def show_tables(self, database):
+        return self.execute_raw_sql("SELECT \
+                table_name AS 'name', \
+                table_rows AS 'rows', \
+                ROUND((data_length + index_length) / 1024 / 1024, 2) AS 'size', \
+                ROUND(data_length / 1024 / 1024, 2) AS 'data_size', \
+                ROUND(index_length / 1024 / 1024, 2) AS 'index_size' \
+            FROM  \
+                information_schema.tables \
+            WHERE  \
+                table_schema = '{}' \
+                AND table_type = 'BASE TABLE' \
+            ORDER BY \
+                (data_length + index_length) DESC; \
+        ".format(database))
 
-    def execute_backup(self, database, path):
-        os.popen("mysqldump -u{} -p{} -h {} -e --opt -c {} > {}".format(
-                self.user, self.password, self.host, database, path
+    def execute_backup(self, database, table, path, limit_start=0, limit_end=1000):
+        process = os.popen("mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {} --where=\"1 LIMIT {}, {}\"".format(
+                self.user, self.password, self.host, database, table, path, limit_start, limit_end
             )
         )
+        output = process.read()
+        process.close()
