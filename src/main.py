@@ -37,8 +37,11 @@ if __name__ == "__main__":
                     print('Backup {} already exists'.format(backup_path))
                     continue
 
-                print('Backup {} from {} to {}'.format(backup_path, split_rows * i, split_rows * (i + 1)))
-                db_handler.execute_backup(database, table_name, backup_path, split_rows * i, split_rows * (i + 1))
+                rows_ini = split_rows * i
+                rows_fin = split_rows * (i + 1)
+
+                print('Backup {} from {} to {}'.format(backup_path, rows_ini, rows_fin))
+                db_handler.execute_backup(database, table_name, backup_path, rows_ini, rows_fin)
         else:
             backup_path = '{}/{}_{}.sql'.format(path, table_name, date)
 

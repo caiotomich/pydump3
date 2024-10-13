@@ -53,7 +53,7 @@ class DatabaseHandler:
         ".format(database))
 
     def execute_backup(self, database, table, path, limit_start=0, limit_end=1000):
-        process = os.popen("mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {} --where=\"1 LIMIT {}, {}\"".format(
+        process = os.popen("mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {} --where=\"id BETWEEN {} AND {}\"".format(
                 self.user, self.password, self.host, database, table, path, limit_start, limit_end
             )
         )
