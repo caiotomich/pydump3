@@ -15,6 +15,7 @@ if __name__ == "__main__":
     date = datetime.now().strftime('%Y%m%d')
     database = os.getenv("BACKUP_DATABASE")
     path = os.getenv("BACKUP_PATH")
+    split_tables = os.getenv("SPLIT_TABLES").split(",")
     split_rows = int(os.getenv("SPLIT_ROWS"))
 
     db_handler = DatabaseHandler()
@@ -27,7 +28,7 @@ if __name__ == "__main__":
         result = db_handler.execute_raw_sql("SELECT COUNT(*) AS 'rows' FROM {}.{}".format(database, table_name))
         table_rows = int(result[0]['rows'])
 
-        if table_rows > split_rows:
+        if table_rows > split_rows and table_name in split_tables:
             size = round(table_rows / split_rows) + 1
 
             for i in range(size):

@@ -61,7 +61,7 @@ class DatabaseHandler:
                 self.user, self.password, self.host, database, table, path, limit_start, limit_end
             )
         
-        command = mysqldump if table != 'publicacao' else mysqldump_split
+        command = mysqldump if split is False else mysqldump_split
 
         process = os.popen(command)
         output = process.read()
