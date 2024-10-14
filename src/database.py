@@ -13,7 +13,7 @@ class DatabaseHandler:
         try:
             return pymysql.connect(
                 host=self.host,
-                
+
                 user=self.user,
                 password=self.password,
                 charset='utf8mb4',
@@ -53,13 +53,15 @@ class DatabaseHandler:
                 (data_length + index_length) DESC; \
         ".format(database))
 
-    def execute_backup(self, database, table, path, limit_start, limit_end, split=False):
+    def execute_backup(self, database, table, path, limit_start, limit_end, index=0, split=False):
         mysqldump = "mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {}".format(
                 self.user, self.password, self.host, database, table, path, limit_start, limit_end
             )
 
-        mysqldump_split = "mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {} --where=\"id BETWEEN {} AND {}\"".format(
-                self.user, self.password, self.host, database, table, path, limit_start, limit_end
+        options = "" if index == 0 else "--no-create-info"
+
+        mysqldump_split = "mysqldump -u{} -p{} -h {} {} -e --opt -c {} {} > {} --where=\"id BETWEEN {} AND {}\"".format(
+                self.user, self.password, self.host, options, database, table, path, limit_start, limit_end
             )
         
         command = mysqldump if split is False else mysqldump_split
