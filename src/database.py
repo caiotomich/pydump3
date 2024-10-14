@@ -52,10 +52,17 @@ class DatabaseHandler:
                 (data_length + index_length) DESC; \
         ".format(database))
 
-    def execute_backup(self, database, table, path, limit_start=0, limit_end=1000):
-        process = os.popen("mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {} --where=\"id BETWEEN {} AND {}\"".format(
+    def execute_backup(self, database, table, path, limit_start, limit_end, split=False):
+        mysqldump = "mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {}".format(
                 self.user, self.password, self.host, database, table, path, limit_start, limit_end
             )
-        )
+
+        mysqldump_split = "mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {} --where=\"id BETWEEN {} AND {}\"".format(
+                self.user, self.password, self.host, database, table, path, limit_start, limit_end
+            )
+        
+        command = mysqldump if split is False else mysqldump_split
+
+        process = os.popen(command)
         output = process.read()
         process.close()

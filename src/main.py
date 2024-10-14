@@ -41,7 +41,7 @@ if __name__ == "__main__":
                 rows_fin = split_rows * (i + 1)
 
                 print('Backup {} from {} to {}'.format(backup_path, rows_ini, rows_fin))
-                db_handler.execute_backup(database, table_name, backup_path, rows_ini, rows_fin)
+                db_handler.execute_backup(database, table_name, backup_path, rows_ini, rows_fin, True)
         else:
             backup_path = '{}/{}_{}.sql'.format(path, table_name, date)
 
