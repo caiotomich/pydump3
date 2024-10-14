@@ -17,8 +17,8 @@ if __name__ == "__main__":
 
     for filename in os.listdir(sql_files_directory):
         if filename.endswith('.sql'):
-            file_path = os.path.join(sql_files_directory, filename)
             print(f"Importing {filename}...")
+            file_path = os.path.join(sql_files_directory, filename)
 
             subprocess.run(
                 f"mysql -u {mysql_user} -p{mysql_password} -h {mysql_host} {mysql_database} < {file_path}",

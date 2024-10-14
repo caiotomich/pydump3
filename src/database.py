@@ -13,6 +13,7 @@ class DatabaseHandler:
         try:
             return pymysql.connect(
                 host=self.host,
+                
                 user=self.user,
                 password=self.password,
                 charset='utf8mb4',

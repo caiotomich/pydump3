@@ -13,10 +13,12 @@ if __name__ == "__main__":
     load_dotenv()
 
     date = datetime.now().strftime('%Y%m%d')
-    database = os.getenv("BACKUP_DATABASE")
-    path = os.getenv("BACKUP_PATH")
-    split_tables = os.getenv("SPLIT_TABLES").split(",")
-    split_rows = int(os.getenv("SPLIT_ROWS"))
+
+    sql_files_directory = os.getenv("EXPORT_SQL_FILES_DIRECTORY")
+    database = os.getenv("MYSQL_DATABASE")
+
+    split_tables = os.getenv("TABLES_TO_SPLIT").split(",")
+    split_rows = int(os.getenv("NUMBER_OF_ROWS_TO_SPLIT"))
 
     db_handler = DatabaseHandler()
 
@@ -32,7 +34,12 @@ if __name__ == "__main__":
             size = round(table_rows / split_rows) + 1
 
             for i in range(size):
-                backup_path = '{}/{}_{}_{}.sql'.format(path, table_name, i, date)
+                backup_path = '{}/{}_{}_{}.sql'.format(
+                    sql_files_directory,
+                    table_name,
+                    i,
+                    date
+                )
 
                 if os.path.exists(backup_path):
                     print('Backup {} already exists'.format(backup_path))
@@ -44,7 +51,11 @@ if __name__ == "__main__":
                 print('Backup {} from {} to {}'.format(backup_path, rows_ini, rows_fin))
                 db_handler.execute_backup(database, table_name, backup_path, rows_ini, rows_fin, True)
         else:
-            backup_path = '{}/{}_{}.sql'.format(path, table_name, date)
+            backup_path = '{}/{}_{}.sql'.format(
+                sql_files_directory,
+                table_name,
+                date
+            )
 
             if os.path.exists(backup_path):
                 print('Backup {} already exists'.format(backup_path))
