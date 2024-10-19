@@ -4,6 +4,7 @@ import os
 class DatabaseHandler:
     def __init__(self):
         self.host = os.getenv("MYSQL_HOST")
+        self.port = os.getenv("MYSQL_PORT")
         self.user = os.getenv("MYSQL_USER")
         self.password = os.getenv("MYSQL_PASSWORD")
 
@@ -54,8 +55,8 @@ class DatabaseHandler:
         ".format(database))
 
     def execute_backup(self, database, table, path, limit_start, limit_end, index=0, split=False):
-        mysqldump = "mysqldump -u{} -p{} -h {} -e --opt -c {} {} > {}".format(
-                self.user, self.password, self.host, database, table, path, limit_start, limit_end
+        mysqldump = "mysqldump -u{} -p{} -h {} -P {} -e --opt -c {} {} > {}".format(
+                self.user, self.password, self.host, self.port, database, table, path, limit_start, limit_end
             )
 
         options = "" if index == 0 else "--no-create-info"

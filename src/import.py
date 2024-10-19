@@ -11,6 +11,7 @@ if __name__ == "__main__":
     sql_files_directory = os.getenv("IMPORT_SQL_FILES_DIRECTORY")
 
     mysql_host = os.getenv("MYSQL_HOST")
+    mysql_port = os.getenv("MYSQL_PORT")
     mysql_user = os.getenv("MYSQL_USER")
     mysql_password = os.getenv("MYSQL_PASSWORD")
     mysql_database = os.getenv("MYSQL_DATABASE")
@@ -21,7 +22,7 @@ if __name__ == "__main__":
             file_path = os.path.join(sql_files_directory, filename)
 
             subprocess.run(
-                f"mysql -u {mysql_user} -p{mysql_password} -h {mysql_host} {mysql_database} < {file_path}",
+                f"mysql -u {mysql_user} -p{mysql_password} -h {mysql_host} -P {mysql_port} {mysql_database} < {file_path}",
                 shell=True
             )
 
