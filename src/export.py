@@ -28,7 +28,12 @@ if __name__ == "__main__":
 
         print('Table {}'.format(table_name))
         result = db_handler.execute_raw_sql("SELECT id FROM {}.{} ORDER BY id DESC LIMIT 1".format(database, table_name))
-        table_rows = int(result[0]['id']) + 1000
+        table_rows = 0
+        if 'id' in result[0]:
+            table_rows = int(result[0]['id']) + 1000
+        else:
+            result = db_handler.execute_raw_sql("SELECT COUNT(*) AS 'rows' FROM {}.{}".format(database, table_name))
+            table_rows = int(result[0]['rows'])
 
         if table_rows > split_rows and table_name in split_tables:
             size = round(table_rows / split_rows) + 1
