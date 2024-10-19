@@ -15,7 +15,7 @@ if __name__ == "__main__":
     mysql_password = os.getenv("MYSQL_PASSWORD")
     mysql_database = os.getenv("MYSQL_DATABASE")
 
-    for filename in os.listdir(sql_files_directory):
+    for filename in os.listdir(sql_files_directory).sorted():
         if filename.endswith('.sql'):
             print(f"Importing {filename}...")
             file_path = os.path.join(sql_files_directory, filename)
