@@ -34,6 +34,7 @@ if __name__ == "__main__":
     tables = db_handler.show_tables(database)
     for table in tables:
         table_name = table['name']
+        print('Exporting {}...'.format(table_name))
 
         table_rows = get_table_rows(database, table_name)
 
