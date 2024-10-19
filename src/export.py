@@ -12,7 +12,7 @@ def get_table_rows(database, table_name):
         return int(result[0]['rows'])
 
     field = columns[0]['Field']
-    result = db_handler.execute_raw_sql("SELECT {} FROM {}.{} ORDER BY id DESC LIMIT 1".format(field, database, table_name))
+    result = db_handler.execute_raw_sql("SELECT {} FROM {}.{} ORDER BY {} DESC LIMIT 1".format(field, database, table_name, field))
     return int(result[0][field])
 
 if __name__ == "__main__":
@@ -36,8 +36,7 @@ if __name__ == "__main__":
     for table in tables:
         table_name = table['name']
 
-        print('Table {}'.format(table_name))
-        table_rows = get_table_rows(database, table_name)
+        table_rows = get_table_rows(database, 'publicacao_processo')
 
         if table_rows > split_rows and table_name in split_tables:
             size = round(table_rows / split_rows) + 1
