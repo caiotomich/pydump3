@@ -1,7 +1,6 @@
 from dotenv import load_dotenv, dotenv_values
 from datetime import datetime
-import shutil
-import os
+import os, json
 
 from database import DatabaseHandler
 
@@ -27,7 +26,7 @@ if __name__ == "__main__":
     sql_files_directory = os.getenv("EXPORT_SQL_FILES_DIRECTORY")
     database = os.getenv("MYSQL_DATABASE")
 
-    split_tables = os.getenv("TABLES_TO_SPLIT").split(",")
+    split_tables = os.getenv("TABLES_TO_SPLIT")
     split_rows = int(os.getenv("NUMBER_OF_ROWS_TO_SPLIT"))
 
     db_handler = DatabaseHandler()
@@ -36,7 +35,7 @@ if __name__ == "__main__":
     for table in tables:
         table_name = table['name']
 
-        table_rows = get_table_rows(database, 'publicacao_processo')
+        table_rows = get_table_rows(database, table_name)
 
         if table_rows > split_rows and table_name in split_tables:
             size = round(table_rows / split_rows) + 1
