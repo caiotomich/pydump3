@@ -4,14 +4,21 @@ import os, json
 
 from database import DatabaseHandler
 
-def get_table_rows(database, table_name):
+def count_table_rows(database, table_name):
+    result = db_handler.execute_raw_sql("SELECT COUNT(*) AS 'rows' FROM {}.{}".format(database, table_name))
+    return int(result[0]['rows'])
+
+
+def get_last_insert_id(database, table_name):
     columns = db_handler.execute_raw_sql("SHOW COLUMNS FROM {}.{} WHERE Extra = 'auto_increment';".format(database, table_name))
     if columns is None or len(columns) == 0:
-        result = db_handler.execute_raw_sql("SELECT COUNT(*) AS 'rows' FROM {}.{}".format(database, table_name))
-        return int(result[0]['rows'])
+        return count_table_rows(database, table_name)
 
     field = columns[0]['Field']
     result = db_handler.execute_raw_sql("SELECT {} FROM {}.{} ORDER BY {} DESC LIMIT 1".format(field, database, table_name, field))
+
+    if columns is None or len(columns) == 0:
+        return count_table_rows(database, table_name)
     return int(result[0][field])
 
 if __name__ == "__main__":
@@ -36,7 +43,7 @@ if __name__ == "__main__":
         table_name = table['name']
         print('Exporting {}...'.format(table_name))
 
-        table_rows = get_table_rows(database, table_name)
+        table_rows = get_last_insert_id(database, table_name)
 
         if table_rows > split_rows and table_name in split_tables:
             size = round(table_rows / split_rows) + 1
