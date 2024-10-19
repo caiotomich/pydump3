@@ -5,6 +5,16 @@ import os
 
 from database import DatabaseHandler
 
+def get_table_rows(database, table_name):
+    columns = db_handler.execute_raw_sql("SHOW COLUMNS FROM {}.{} WHERE Extra = 'auto_increment';".format(database, table_name))
+    if columns is None or len(columns) == 0:
+        result = db_handler.execute_raw_sql("SELECT COUNT(*) AS 'rows' FROM {}.{}".format(database, table_name))
+        return int(result[0]['rows'])
+
+    field = columns[0]['Field']
+    result = db_handler.execute_raw_sql("SELECT {} FROM {}.{} ORDER BY id DESC LIMIT 1".format(field, database, table_name))
+    return int(result[0][field])
+
 if __name__ == "__main__":
     if not os.path.exists(".env"):
         raise Exception("Missing env file")
@@ -27,13 +37,7 @@ if __name__ == "__main__":
         table_name = table['name']
 
         print('Table {}'.format(table_name))
-        result = db_handler.execute_raw_sql("SELECT id FROM {}.{} ORDER BY id DESC LIMIT 1".format(database, table_name))
-        table_rows = 0
-        if 'id' in result[0]:
-            table_rows = int(result[0]['id']) + 1000
-        else:
-            result = db_handler.execute_raw_sql("SELECT COUNT(*) AS 'rows' FROM {}.{}".format(database, table_name))
-            table_rows = int(result[0]['rows'])
+        table_rows = get_table_rows(database, table_name)
 
         if table_rows > split_rows and table_name in split_tables:
             size = round(table_rows / split_rows) + 1
